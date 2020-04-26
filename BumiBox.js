@@ -3,7 +3,6 @@ let Discord = require("discord.js");
 let bot = new Discord.Client();
 let setPath = "./settings.json";
 let settings = require(setPath);
-const fs = require('fs');
 const ytdl = require('ytdl-core');
 const ytsr = require("ytsr");
 let announcement = "general";
@@ -101,6 +100,17 @@ function remove(index) {
 
 }
 
+function help() {
+    return "\`!channel <channel> to change which channel the bot will respond to commands in\`\n" +
+        "\`!play <link or search> to add a youtube video to the queue\`\n" +
+        "\`!pause to pause the music\`\n" +
+        "\`!resume to resume the music\`\n" +
+        "\`!queue to view the queue\`\n" +
+        "\`!remove <number> to remove the song in the queue next to the number\`\n" +
+        "\`!skip to skip to the next song\`\n" +
+        "\`!stop to stop the music and empty the queue\`";
+}
+
 bot.on("message", msg => {
     let prefix = settings.prefix;
     if(msg.author.bot) {return;}
@@ -149,6 +159,9 @@ bot.on("message", msg => {
     }
     if(msg.content.startsWith(prefix + "resume")) {
         msg.channel.send(resume());
+    }
+    if(msg.content.startsWith(prefix + "help")) {
+        msg.channel.send(help());
     }
 });
 
