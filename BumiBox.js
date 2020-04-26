@@ -5,7 +5,7 @@ let setPath = "./settings.json";
 let settings = require(setPath);
 const ytdl = require('ytdl-core');
 const ytsr = require("ytsr");
-let announcement = "general";
+let announcement = "spam";
 let videos = [];
 let names = [];
 let connectionOut = bot;
@@ -18,12 +18,8 @@ function changeChannel(channelName){
     announcement = channelName;
 }
 
-let options = {
-    limit: 1
-};
-
 async function playLink(word, msgChannel, author) {
-    let data = ytdl.getBasicInfo(word);
+    let data = ytdl.getBasicInfo(word.toString());
     await data.then(function(value) {
         names.push(value.player_response.videoDetails.title + " by " + value.player_response.videoDetails.author);
         videos.push(ytdl(word, {quality: "highestaudio", highWatermark: 1 << 30}));
@@ -38,8 +34,7 @@ async function playLink(word, msgChannel, author) {
 
 }
 async function playSearch(word, msgChannel, author) {
-    let data = ytsr(word, options);
-    await data.then(function(value) {
+    await ytsr(word.toString()).then(function(value) {
         names.push(value.items[0].title.toString() + " by " + value.items[0].author.name.toString());
         videos.push(ytdl(value.items[0].link.toString(), {quality: "highestaudio", highWaterMark: 1 << 30}));
         msgChannel.send("\`Added " + value.items[0].title.toString() + " by " + value.items[0].author.name.toString() + "\`");
