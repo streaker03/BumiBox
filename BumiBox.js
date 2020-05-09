@@ -110,7 +110,10 @@ bot.on("message", msg => {
     let prefix = settings.prefix;
     if(msg.author.bot) {return;}
     if(msg.channel.name !== announcement) {return;}
-    if(msg.member.voice.channel == null) {return;}
+    if(msg.member.voice.channel == null) {
+        msg.channel.send("Join a voice channel before giving commands!");
+        return;
+    }
     if(msg.content.startsWith(prefix + "channel ")) {
         let word = msg.content.substring(msg.content.indexOf(" ")+1, msg.content.length);
         changeChannel(word);
