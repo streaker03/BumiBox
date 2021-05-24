@@ -1,11 +1,12 @@
 console.log("Compiling...");
-let Discord = require("discord.js");
+let Discord = require('discord.js');
 let bot = new Discord.Client();
 let setPath = "./settings.json";
 let settings = require(setPath);
 const ytdl = require('ytdl-core');
-const ytsr = require("ytsr");
+const ytsr = require('ytsr');
 let announcement = "spam";
+let data = [];
 let videos = [];
 let names = [];
 let connectionOut = bot;
@@ -19,14 +20,18 @@ function changeChannel(channelName){
 }
 
 async function playLink(word, msgChannel, author) {
-    let data = ytdl.getBasicInfo(word.toString());
-    await data.then(function(value) {
+    //data.push(word);
+    await ytdl.getBasicInfo(word.toString()).then(function(value) {
         names.push(value.player_response.videoDetails.title + " by " + value.player_response.videoDetails.author);
         videos.push(ytdl(word, {quality: "highestaudio", highWatermark: 1 << 30}));
         msgChannel.send("\`Added " + value.player_response.videoDetails.title + " by " + value.player_response.videoDetails.author + "\`");
+    }).catch(() => function(err) {
+        console.log(err);
     });
     if(!paused && !playing) {
-        await broadcast(author);
+        await broadcast(author).then().catch(() => function(err) {
+            console.log(err);
+        });
     } else if(paused) {
         dispatcherOut.resume();
         paused = false;
@@ -34,6 +39,8 @@ async function playLink(word, msgChannel, author) {
 
 }
 async function playSearch(word, msgChannel, author) {
+    //data.push(word);
+    console.log(word.toString());
     await ytsr(word.toString()).then(function(value) {
         names.push(value.items[0].title.toString() + " by " + value.items[0].author.name.toString());
         videos.push(ytdl(value.items[0].link.toString(), {quality: "highestaudio", highWaterMark: 1 << 30}));
@@ -49,12 +56,15 @@ async function playSearch(word, msgChannel, author) {
 
 async function broadcast(author) {
     await author.voice.channel.join().then(connection => {
-        const dispatcher = connection.play(videos[0]);
+        let dispatcher = connection.play(videos[0]);
         dispatcherOut = dispatcher;
         connectionOut = connection;
         playing = true;
+        videos[0].on("error", () => {
+            console.log("Error detected (video)")
+        })
         dispatcher.on("error", () => {
-            broadcast(author);
+            console.log("Error detected (dispatcher)");
         })
         dispatcher.on("finish", () => {
             videos.shift();
@@ -65,6 +75,8 @@ async function broadcast(author) {
                 connection.disconnect();
             }
         })
+    }).catch(() => function(err) {
+        console.log(err);
     });
 }
 
@@ -109,21 +121,32 @@ function help() {
         "\`!stop to stop the music and empty the queue\`";
 }
 
-bot.on("message", msg => {
-    let prefix = settings.prefix;
-    if(msg.author.bot) {return;}
-    if(msg.channel.name !== announcement) {return;}
+function check(msg) {
     if(msg.member.voice.channel == null) {
         msg.channel.send("Join a voice channel before giving commands!").then().catch(() => function(err) {
             console.log(err);
         });
-        return;
+        return true;
+    } else {
+        return false;
     }
+}
+
+bot.on("message", msg => {
+    let prefix = settings.prefix;
+    if(msg.author.bot) {return;}
+    if(msg.channel.name.toLowerCase() !== announcement) {return;}
     if(msg.content.startsWith(prefix + "channel ")) {
+        if(check(msg)) {
+            return;
+        }
         let word = msg.content.substring(msg.content.indexOf(" ")+1, msg.content.length);
         changeChannel(word);
     }
     if(msg.content.startsWith(prefix + "play ")) {
+        if(check(msg)) {
+            return;
+        }
         let word = msg.content.substring(msg.content.indexOf(" ")+1, msg.content.length);
         if(msg.embeds.length > 0) {
             playLink(word, msg.channel, msg.member).then().catch(() => function(err) {
@@ -136,22 +159,34 @@ bot.on("message", msg => {
         }
     }
     if(msg.content.startsWith(prefix + "pause")) {
+        if(check(msg)) {
+            return;
+        }
         msg.channel.send(pause()).then().catch(() => function(err) {
             console.log(err);
         });
     }
     if(msg.content.startsWith(prefix + "queue")) {
+        if(check(msg)) {
+            return;
+        }
         msg.channel.send(queue()).then().catch(() => function(err) {
             console.log(err);
         });
     }
     if(msg.content.startsWith(prefix + "remove ")) {
+        if(check(msg)) {
+            return;
+        }
         let index = msg.content.substring(msg.content.indexOf(" ")+1, msg.content.length);
         msg.channel.send(remove(parseInt(index))).then().catch(() => function(err) {
             console.log(err);
         });
     }
     if(msg.content.startsWith(prefix + "stop")) {
+        if(check(msg)) {
+            return;
+        }
         videos = [];
         names = [];
         playing = false;
@@ -162,6 +197,9 @@ bot.on("message", msg => {
         });
     }
     if(msg.content.startsWith(prefix + "skip")) {
+        if(check(msg)) {
+            return;
+        }
         msg.channel.send("\`Skipped " + names[0] + "\`").then().catch(() => function(err) {
             console.log(err);
         });
@@ -177,11 +215,17 @@ bot.on("message", msg => {
         }
     }
     if(msg.content.startsWith(prefix + "resume")) {
+        if(check(msg)) {
+            return;
+        }
         msg.channel.send(resume()).then().catch(() => function(err) {
             console.log(err);
         });
     }
     if(msg.content.startsWith(prefix + "help")) {
+        if(check(msg)) {
+            return;
+        }
         msg.channel.send(help()).then().catch(() => function(err) {
             console.log(err);
         });
