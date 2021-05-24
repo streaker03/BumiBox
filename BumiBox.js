@@ -99,12 +99,12 @@ function remove(index) {
 }
 
 function help() {
-    return "\`!channel <channel> to change which channel the bot will respond to commands in\`\n" +
-        "\`!play <link or search> to add a youtube video to the queue\`\n" +
+    return "\`!channel |channel| to change which channel the bot will respond to commands in\`\n" +
+        "\`!play |link or search| to add a youtube video to the queue\`\n" +
         "\`!pause to pause the music\`\n" +
         "\`!resume to resume the music\`\n" +
         "\`!queue to view the queue\`\n" +
-        "\`!remove <number> to remove the song in the queue next to the number\`\n" +
+        "\`!remove |number| to remove the song in the queue next to the number\`\n" +
         "\`!skip to skip to the next song\`\n" +
         "\`!stop to stop the music and empty the queue\`";
 }
@@ -114,7 +114,7 @@ bot.on("message", msg => {
     if(msg.author.bot) {return;}
     if(msg.channel.name !== announcement) {return;}
     if(msg.member.voice.channel == null) {
-        msg.channel.send("Join a voice channel before giving commands!").then().catch(err => function(err) {
+        msg.channel.send("Join a voice channel before giving commands!").then().catch(() => function(err) {
             console.log(err);
         });
         return;
@@ -126,28 +126,28 @@ bot.on("message", msg => {
     if(msg.content.startsWith(prefix + "play ")) {
         let word = msg.content.substring(msg.content.indexOf(" ")+1, msg.content.length);
         if(msg.embeds.length > 0) {
-            playLink(word, msg.channel, msg.member).then().catch(err => function(err) {
+            playLink(word, msg.channel, msg.member).then().catch(() => function(err) {
                 console.log(err);
             });
         } else {
-            playSearch(word, msg.channel, msg.member).then().catch(err => function(err) {
+            playSearch(word, msg.channel, msg.member).then().catch(() => function(err) {
                 console.log(err);
             });
         }
     }
     if(msg.content.startsWith(prefix + "pause")) {
-        msg.channel.send(pause()).then().catch(err => function(err) {
+        msg.channel.send(pause()).then().catch(() => function(err) {
             console.log(err);
         });
     }
     if(msg.content.startsWith(prefix + "queue")) {
-        msg.channel.send(queue()).then().catch(err => function(err) {
+        msg.channel.send(queue()).then().catch(() => function(err) {
             console.log(err);
         });
     }
     if(msg.content.startsWith(prefix + "remove ")) {
         let index = msg.content.substring(msg.content.indexOf(" ")+1, msg.content.length);
-        msg.channel.send(remove(parseInt(index))).then().catch(err => function(err) {
+        msg.channel.send(remove(parseInt(index))).then().catch(() => function(err) {
             console.log(err);
         });
     }
@@ -157,18 +157,18 @@ bot.on("message", msg => {
         playing = false;
         paused = false;
         connectionOut.disconnect();
-        msg.channel.send("\`Stopped\`").then().catch(err => function(err) {
+        msg.channel.send("\`Stopped\`").then().catch(() => function(err) {
             console.log(err);
         });
     }
     if(msg.content.startsWith(prefix + "skip")) {
-        msg.channel.send("\`Skipped " + names[0] + "\`").then().catch(err => function(err) {
+        msg.channel.send("\`Skipped " + names[0] + "\`").then().catch(() => function(err) {
             console.log(err);
         });
         videos.shift();
         names.shift();
         if(videos.length > 0) {
-            broadcast(msg.member).then().catch(err => function(err) {
+            broadcast(msg.member).then().catch(() => function(err) {
                 console.log(err);
             });
         } else {
@@ -177,12 +177,12 @@ bot.on("message", msg => {
         }
     }
     if(msg.content.startsWith(prefix + "resume")) {
-        msg.channel.send(resume()).then().catch(err => function(err) {
+        msg.channel.send(resume()).then().catch(() => function(err) {
             console.log(err);
         });
     }
     if(msg.content.startsWith(prefix + "help")) {
-        msg.channel.send(help()).then().catch(err => function(err) {
+        msg.channel.send(help()).then().catch(() => function(err) {
             console.log(err);
         });
     }
@@ -192,6 +192,6 @@ bot.on("message", msg => {
 bot.on("ready", () => {
     console.log('I am ready!');
 });
-bot.login(settings.key).then().catch(err => function(err) {
+bot.login(settings.key).then().catch(() => function(err) {
     console.log(err);
 });
