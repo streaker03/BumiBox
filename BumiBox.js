@@ -59,7 +59,7 @@ async function broadcast(author) {
         let dispatcher = connection.play(videos[0]);
         dispatcherOut = dispatcher;
         connectionOut = connection;
-        playing = true;
+        playing = true;w
         videos[0].on("error", () => {
             console.log("Error detected (video)")
         })
