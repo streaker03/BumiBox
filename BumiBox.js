@@ -71,14 +71,14 @@ async function broadcast(author) {
 }
 
 function pause() {
-    dispatcherOut.pause();
+    dispatcherOut.cork();
     paused = true;
     playing = false;
     return "\`Paused\`";
 }
 
 function resume() {
-    dispatcherOut.resume();
+    dispatcherOut.uncork();
     paused = false;
     playing = true;
     return "\`Resuming...\`";
