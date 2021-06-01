@@ -1,6 +1,6 @@
 {
   "name": "bumi",
-  "version": "1.3.5",
+  "version": "1.3.6",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -10,9 +10,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@derhuerst/http-basic": "^8.2.1",
     "@discordjs/opus": "^0.5.0",
     "discord.js": "^12.5.3",
-    "ffmpeg": "0.0.4",
+    "ffmpeg-static": "^4.3.0",
     "node-pre-gyp": "^0.14.0",
     "ytdl-core": "^4.8.2",
     "ytsr": "^3.5.0"
