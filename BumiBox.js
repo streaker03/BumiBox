@@ -6,7 +6,6 @@ let settings = require(setPath);
 const ytdl = require('ytdl-core');
 const ytsr = require('ytsr');
 let announcement = "spam";
-let data = [];
 let videos = [];
 let names = [];
 let connectionOut = bot;
@@ -20,7 +19,6 @@ function changeChannel(channelName){
 }
 
 async function playLink(word, msgChannel, author) {
-    //data.push(word);
     await ytdl.getBasicInfo(word.toString()).then(function(value) {
         names.push(value.player_response.videoDetails.title + " by " + value.player_response.videoDetails.author);
         videos.push(ytdl(word, {quality: "highestaudio", highWatermark: 1 << 30}));
@@ -39,19 +37,12 @@ async function playLink(word, msgChannel, author) {
 
 }
 async function playSearch(word, msgChannel, author) {
-    //data.push(word);
-    console.log(word.toString());
-    await ytsr(word.toString()).then(function(value) {
-        names.push(value.items[0].title.toString() + " by " + value.items[0].author.name.toString());
-        videos.push(ytdl(value.items[0].link.toString(), {quality: "highestaudio", highWaterMark: 1 << 30}));
-        msgChannel.send("\`Added " + value.items[0].title.toString() + " by " + value.items[0].author.name.toString() + "\`");
+    await ytsr(word.toString(), limit=1).then(function(value) {
+        console.log(value);
+        playLink(value.items[0].url.toString(), msgChannel, author).then().catch(() => function(err) {
+            console.log(err);
+        });
     });
-    if(!paused && !playing) {
-        await broadcast(author);
-    } else if(paused) {
-        dispatcherOut.resume();
-        paused = false;
-    }
 }
 
 async function broadcast(author) {
@@ -59,7 +50,7 @@ async function broadcast(author) {
         let dispatcher = connection.play(videos[0]);
         dispatcherOut = dispatcher;
         connectionOut = connection;
-        playing = true;w
+        playing = true;
         videos[0].on("error", () => {
             console.log("Error detected (video)")
         })
@@ -123,9 +114,7 @@ function help() {
 
 function check(msg) {
     if(msg.member.voice.channel == null) {
-        msg.channel.send("Join a voice channel before giving commands!").then().catch(() => function(err) {
-            console.log(err);
-        });
+        msg.channel.send("Join a voice channel before giving commands!")
         return true;
     } else {
         return false;
@@ -148,7 +137,7 @@ bot.on("message", msg => {
             return;
         }
         let word = msg.content.substring(msg.content.indexOf(" ")+1, msg.content.length);
-        if(msg.embeds.length > 0) {
+        if(msg.content.includes("watch?v=")) {
             playLink(word, msg.channel, msg.member).then().catch(() => function(err) {
                 console.log(err);
             });
