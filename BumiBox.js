@@ -38,7 +38,6 @@ async function playLink(word, msgChannel, author) {
 }
 async function playSearch(word, msgChannel, author) {
     await ytsr(word.toString(), limit=1).then(function(value) {
-        console.log(value);
         playLink(value.items[0].url.toString(), msgChannel, author).then().catch(() => function(err) {
             console.log(err);
         });
